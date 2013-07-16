@@ -16,7 +16,7 @@ class PaintingGameMatch:
         self.pendingShutdown = False
         self.shutdownTime = 0
         self.timer = LoopingCall(self.update)
-        self.timer.start(5)
+        self.timer.start(500)
 
     def __repr__(self):
         return "%d %s" % (self.state, str(self.players))
@@ -75,3 +75,8 @@ class PaintingGameMatch:
             matchPlayer.match = None
             if matchPlayer.protocol:
                 matchPlayer.protocol.sendNotInMatch()
+
+    def sendPictureFromPlayer(self, player, b):
+        for p in self.players:
+            if p != player:
+                p.protocol.sendPicture(b)

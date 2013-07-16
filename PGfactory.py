@@ -1,9 +1,11 @@
 from twisted.internet.protocol import Factory
+from collections import deque
+import random
+
 from PGPlayer import *
 from PGProtocol import *
 from PGMatch import *
-from collections import deque
-import random
+
 
 class PaintingGameFactory(Factory):
     def __init__(self):
@@ -35,7 +37,6 @@ class PaintingGameFactory(Factory):
         newPlayer.protocol.sendNotInMatch()
         #TODO
         self.findOpponent(newPlayer)
-
 
     def startMatch(self, playerIds):
         matchPlayers = []
@@ -73,3 +74,5 @@ class PaintingGameFactory(Factory):
             player.protocol.sendOpponentLogin(opponent.login)
             opponent.protocol.sendOpponentLogin(player.login)
             game = PaintingGameMatch(players3)
+            player.match = game
+            opponent.match = game

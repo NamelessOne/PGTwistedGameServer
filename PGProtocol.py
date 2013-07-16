@@ -6,16 +6,20 @@ from PGMessageReader import *
 from PGMessageWriter import *
 
 
-MESSAGE_PLAYER_CONNECTED = 0
-MESSAGE_NOT_IN_MATCH = 1
+TO_SERVER_MESSAGE_PLAYER_CONNECTED = 0
+TO_SERVER_MESSAGE_PROVIDE_PICTURE = 12
+
+TO_CLIENT_MESSAGE_NOT_IN_MATCH = 1
+TO_CLIENT_MESSAGE_PLAYERS_ROLE = 9
+TO_CLIENT_MESSAGE_OPPONENT_LOGIN = 10
+TO_CLIENT_MESSAGE_PROVIDE_PICTURE = 11
+
 MESSAGE_START_MATCH = 2
 MESSAGE_MATCH_STARTED = 3
 MESSAGE_PLAYER_MOVED = 5
 MESSAGE_GAME_OVER = 6
 MESSAGE_RESTART_MATCH = 7
 MESSAGE_NOTIFY_READY = 8
-MESSAGE_SET_ROLE = 9
-MESSAGE_SEND_OPPONENT_LOGIN = 10
 
 
 class PaintingGameProtocol(Protocol):
@@ -43,7 +47,7 @@ class PaintingGameProtocol(Protocol):
 
     def sendNotInMatch(self):
         message = MessageWriter()
-        message.writeByte(MESSAGE_NOT_IN_MATCH)
+        message.writeByte(TO_CLIENT_MESSAGE_NOT_IN_MATCH)
         self.log("Sent MESSAGE_NOT_IN_MATCH")
         self.sendMessage(message)
 
@@ -58,12 +62,14 @@ class PaintingGameProtocol(Protocol):
         messageId = message.readByte()
         if messageId == MESSAGE_NOTIFY_READY:
             return self.notifyReady(message)
-        if messageId == MESSAGE_PLAYER_CONNECTED:
+        if messageId == TO_SERVER_MESSAGE_PLAYER_CONNECTED:
             return self.playerConnected(message)
         if messageId == MESSAGE_START_MATCH:
             return self.startMatch(message)
         if messageId == MESSAGE_RESTART_MATCH:
             return self.restartMatch(message)
+        if messageId == TO_SERVER_MESSAGE_PROVIDE_PICTURE:
+            return self.pictureToServer(message)
         self.log("Unexpected message: %d" % messageId)
 
     def dataReceived(self, data):
@@ -117,6 +123,19 @@ class PaintingGameProtocol(Protocol):
         self.player.match.movedSelf(posX, self.player)
         return self.movedSelf(message)
 
+    def pictureToServer(self, message):
+        self.log("Recv PICTURE")
+        b = message.readByteArray()
+        self.player.match.sendPictureFromPlayer(self.player, b)
+        #TODO
+
+    def sendPicture(self, b):
+        self.log("Send PICTURE")
+        message = MessageWriter()
+        message.writeByte(TO_CLIENT_MESSAGE_PROVIDE_PICTURE)
+        message.writeByteArray(b)
+        self.sendMessage(message)
+
     def restartMatch(self, message):
         self.log("Recv MESSAGE_RESTART_MATCH")
         self.player.match.restartMatch(self.player)
@@ -136,14 +155,14 @@ class PaintingGameProtocol(Protocol):
     def setRole(self, role):
         self.player.role = role
         message = MessageWriter()
-        message.writeByte(MESSAGE_SET_ROLE)
+        message.writeByte(TO_CLIENT_MESSAGE_PLAYERS_ROLE)
         message.writeByte(role)
         self.log("Sent MESSAGE_SET_ROLE %s %d" % (self.player.login, role))
         self.sendMessage(message)
 
     def sendOpponentLogin(self, login):
         message = MessageWriter()
-        message.writeByte(MESSAGE_SEND_OPPONENT_LOGIN)
+        message.writeByte(TO_CLIENT_MESSAGE_OPPONENT_LOGIN)
         message.writeString(login)
         self.log("Sent MESSAGE_SEND_OPPONENT_LOGIN %s %s" % (self.player.login, login))
         self.sendMessage(message)

@@ -22,3 +22,11 @@ class MessageReader:
         retval = unpack(unpackStr, self.data[self.offset:self.offset + strLength])[0]
         self.offset = self.offset + strLength
         return retval
+
+    def readByteArray(self):
+        arrayLength = self.readInt()
+        b = bytearray()
+        for i in range(0, arrayLength):
+            b.append(self.readByte())
+        self.offset += arrayLength
+        return b
