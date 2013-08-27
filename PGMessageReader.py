@@ -25,7 +25,8 @@ class MessageReader:
 
     def readByteArray(self):
         arrayLength = self.readInt()
-        b = bytearray()
+        #b = bytearray()
+        b = []
         for i in range(0, arrayLength):
             b.append(self.readByte())
         self.offset += arrayLength

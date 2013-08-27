@@ -15,8 +15,8 @@ class PaintingGameMatch:
         self.state = MATCH_STATE_ACTIVE
         self.pendingShutdown = False
         self.shutdownTime = 0
-        self.timer = LoopingCall(self.update)
-        self.timer.start(500)
+        #self.timer = LoopingCall(self.update)
+        #self.timer.start(500)
 
     def __repr__(self):
         return "%d %s" % (self.state, str(self.players))

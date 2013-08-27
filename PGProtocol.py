@@ -135,6 +135,7 @@ class PaintingGameProtocol(Protocol):
         message.writeByte(TO_CLIENT_MESSAGE_PROVIDE_PICTURE)
         message.writeByteArray(b)
         self.sendMessage(message)
+        self.log("Complete PICTURE")
 
     def restartMatch(self, message):
         self.log("Recv MESSAGE_RESTART_MATCH")

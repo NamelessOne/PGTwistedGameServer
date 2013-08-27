@@ -18,5 +18,6 @@ class MessageWriter:
 
     def writeByteArray(self, bs):
         self.writeInt(len(bs))
-        for b in bs:
-            self.writeByte(b)
+        #for b in bs:
+            #self.writeByte(b)
+        self.data += pack('!%sB' % len(bs), *bs)
